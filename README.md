@@ -16,8 +16,3 @@ Each lab subdirectory contains:
 EIGRPConfiguration.md: A detailed write-up outlining the lab objectives, step-by-step configuration, verification commands, and analysis of the results.
 
 Lab.pkt: The final, completed Packet Tracer file used for implementation and testing.
-
-
-EIGRP-Lab2-Writeup.md
-
-EIGRP-Lab2.pkt
