@@ -1,0 +1,113 @@
+!
+version 12.4
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname R3-SH
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 222.3.3.3 255.255.255.255
+!
+interface FastEthernet0/0
+ ip address 91.82.1.1 255.255.255.252
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1
+ ip address 92.82.1.1 255.255.255.252
+ duplex auto
+ speed auto
+!
+interface Serial0/1/0
+ no ip address
+ clock rate 2000000
+ shutdown
+!
+interface Serial0/1/1
+ no ip address
+ clock rate 2000000
+ shutdown
+!
+interface Serial0/2/0
+ ip address 99.0.0.10 255.255.255.252
+!
+interface Serial0/2/1
+ ip address 99.0.0.6 255.255.255.252
+ clock rate 64000
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+router ospf 1
+ router-id 222.3.3.3
+ log-adjacency-changes
+ redistribute bgp 4906 subnets 
+ passive-interface Serial0/2/0
+ passive-interface Serial0/2/1
+ passive-interface Loopback0
+ network 222.3.3.3 0.0.0.0 area 0
+ network 91.82.1.0 0.0.0.3 area 0
+!
+router bgp 4906
+ bgp log-neighbor-changes
+ no synchronization
+ neighbor 99.0.0.9 remote-as 14391
+ neighbor 99.0.0.5 remote-as 6202
+ redistribute ospf 1 
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+!
+no cdp run
+!
+!
+!
+!
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+end
+
