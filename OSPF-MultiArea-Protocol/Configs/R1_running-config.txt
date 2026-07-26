@@ -1,0 +1,110 @@
+!
+version 12.4
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname R1-SH
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 55.0.0.1 255.255.255.255
+!
+interface FastEthernet0/0
+ ip address 77.77.82.129 255.255.255.128
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+ shutdown
+!
+interface Serial0/1/0
+ no ip address
+ clock rate 2000000
+ shutdown
+!
+interface Serial0/1/1
+ no ip address
+ clock rate 2000000
+ shutdown
+!
+interface Serial0/2/0
+ bandwidth 1000
+ ip address 200.10.82.2 255.255.255.252
+ ip ospf cost 50
+ clock rate 1000000
+!
+interface Serial0/2/1
+ bandwidth 4000
+ ip address 200.10.82.9 255.255.255.252
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+router ospf 50
+ router-id 1.1.1.1
+ log-adjacency-changes
+ passive-interface FastEthernet0/0
+ passive-interface Loopback0
+ network 77.77.82.128 0.0.0.127 area 2
+ network 200.10.82.0 0.0.0.3 area 2
+ network 200.10.82.8 0.0.0.3 area 2
+ network 55.0.0.1 0.0.0.0 area 2
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+!
+no cdp run
+!
+!
+!
+!
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+end
+
