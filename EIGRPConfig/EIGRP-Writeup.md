@@ -19,7 +19,8 @@ This lab demonstrates the configuration, verification, and analysis of the **Enh
 
 # Network Topology
 
-> *Insert network topology diagram here.*
+<img width="393" height="175" alt="image" src="https://github.com/user-attachments/assets/6515bd74-0848-493d-8f19-410f919bb790" />
+
 
 ---
 
