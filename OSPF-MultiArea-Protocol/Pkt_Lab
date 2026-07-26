@@ -1,0 +1,265 @@
+# OSPF Multi-Area Configuration and Cost Manipulation Lab (NET 365)
+
+## Overview
+
+This lab demonstrates the configuration and analysis of **Open Shortest Path First (OSPF)** in a four-router Cisco network. The project focuses on establishing OSPF neighbor adjacencies, configuring multiple OSPF areas, advertising loopback and LAN networks, implementing passive interfaces, route summarization, and influencing path selection by modifying OSPF interface costs.
+
+The lab concludes by verifying how OSPF recalculates shortest paths after interface costs are manually adjusted.
+
+---
+
+# Learning Objectives
+
+- Configure IPv4 addressing on Cisco routers
+- Configure OSPF Process ID 50
+- Build a multi-area OSPF topology
+- Configure Router IDs
+- Advertise LAN, serial, and loopback networks
+- Configure passive interfaces
+- Configure OSPF route summarization
+- Manipulate OSPF interface costs
+- Verify SPF recalculation and route changes
+- Analyze OSPF path selection
+
+---
+
+# Network Topology
+
+
+---
+
+# Network Design
+
+## Area Assignment
+
+| Router | OSPF Area(s) |
+|---------|--------------|
+| R1 | Area 2 |
+| R2 | Area 2 |
+| R3 | Area 0 & Area 2 (ABR) |
+| R4 | Area 0 |
+
+R3 functions as the **Area Border Router (ABR)** between Area 0 and Area 2.
+
+---
+
+# Router Configuration
+
+Each router was configured with:
+
+- Hostname
+- Interface IP addresses
+- Loopback interface
+- OSPF Router ID
+- OSPF network statements
+- Passive interfaces where appropriate
+
+Example (R1)
+
+```cisco
+router ospf 50
+
+router-id 1.1.1.1
+
+network 77.77.82.128 0.0.0.127 area 2
+network 200.10.82.0 0.0.0.3 area 2
+network 200.10.82.8 0.0.0.3 area 2
+network 55.0.0.1 0.0.0.0 area 2
+
+passive-interface FastEthernet0/0
+passive-interface Loopback0
+```
+
+---
+
+# OSPF Features Implemented
+
+## Router IDs
+
+| Router | Router ID |
+|---------|-----------|
+| R1 | 1.1.1.1 |
+| R2 | 2.2.2.2 |
+| R3 | 3.3.3.3 |
+| R4 | 4.4.4.4 |
+
+---
+
+## Passive Interfaces
+
+Passive interfaces were configured on LAN and Loopback interfaces to prevent unnecessary OSPF Hello packets while still advertising connected networks.
+
+| Router | Interface |
+|---------|-----------|
+| R1 | FastEthernet0/0 |
+| R1 | Loopback0 |
+| R2 | Loopback0 |
+| R3 | Loopback0 |
+| R4 | FastEthernet0/0 |
+| R4 | Loopback0 |
+
+---
+
+## Route Summarization
+
+R3, acting as the Area Border Router, summarizes Area 2 routes before advertising them into Area 0.
+
+```cisco
+area 2 range 200.10.82.0 255.255.255.224
+```
+
+Benefits:
+
+- Smaller routing tables
+- Reduced LSA flooding
+- Improved scalability
+
+---
+
+# OSPF Cost Manipulation
+
+One objective of this lab was to influence route selection by modifying OSPF interface costs.
+
+The following interfaces were configured with higher costs.
+
+### R1
+
+```cisco
+interface Serial0/2/0
+
+ip ospf cost 50
+```
+
+### R3
+
+```cisco
+interface Serial0/2/1
+
+ip ospf cost 50
+```
+
+Increasing the interface cost made these links less desirable during SPF calculations, causing OSPF to prefer alternate paths with lower cumulative costs.
+
+---
+
+# Verification Commands
+
+The following IOS commands were used throughout the lab.
+
+## Neighbor Verification
+
+```cisco
+show ip ospf neighbor
+```
+
+## Interface Verification
+
+```cisco
+show ip ospf interface
+```
+
+## Routing Table
+
+```cisco
+show ip route
+```
+
+## OSPF Database
+
+```cisco
+show ip ospf database
+```
+
+## Protocol Information
+
+```cisco
+show ip protocols
+```
+
+## Connectivity
+
+```cisco
+ping
+tracert
+```
+
+---
+
+# Results
+
+The lab successfully demonstrated:
+
+- Stable OSPF neighbor adjacencies
+- Successful inter-area routing
+- Route summarization through the Area Border Router
+- Dynamic SPF recalculation
+- Cost-based path selection
+- End-to-end connectivity between both LANs
+
+Changing interface costs caused OSPF to install alternate shortest paths without manual routing changes, illustrating the protocol's dynamic convergence capabilities.
+
+---
+
+# Key Networking Concepts
+
+- OSPF
+- Link-State Routing
+- SPF (Dijkstra) Algorithm
+- Router ID
+- Area Border Router (ABR)
+- Backbone Area (Area 0)
+- Multi-Area OSPF
+- Route Summarization
+- OSPF Cost
+- Passive Interfaces
+- Link-State Advertisements (LSAs)
+- Dynamic Routing
+- Convergence
+
+---
+
+# Repository Structure
+
+```
+NET365-OSPF-MultiArea-Lab/
+
+│
+├── README.md
+├── topology.png
+├── packet-tracer/
+│     └── ospf-lab.pkt
+├── configs/
+│     ├── R1.txt
+│     ├── R2.txt
+│     ├── R3.txt
+│     └── R4.txt
+└── screenshots/
+      ├── ospf-neighbors.png
+      ├── routing-table.png
+      ├── ospf-database.png
+      └── traceroute.png
+```
+
+---
+
+# Skills Demonstrated
+
+- Cisco IOS Configuration
+- OSPF Deployment
+- Multi-Area Routing
+- Route Summarization
+- Network Troubleshooting
+- Routing Table Analysis
+- Dynamic Routing Protocols
+- Enterprise Networking
+- Cisco CLI
+- Network Verification
+- Packet Tracer
+- TCP/IP
+- Routing Metrics
+- Layer 3 Networking
+
+---
+
+# Conclusion
+
