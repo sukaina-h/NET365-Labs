@@ -1,123 +1,278 @@
-EIGRP Configuration and Metric Analysis Lab (NET 365)
-Overview
-This document details the configuration and testing of a four-router network utilizing the Enhanced Interior Gateway Routing Protocol (EIGRP). The primary goals of this lab were to:
+# EIGRP Configuration and Metric Analysis Lab (NET 365)
 
-Configure basic IP addressing, hostnames, and connectivity on four Cisco routers (R1, R2, R3, R4) and two end hosts (Host 1, Host 2).
+## Overview
 
-Implement EIGRP Autonomous System (AS) 5205, including network advertisement, passive interfaces, and disabling auto-summarization.
+This lab demonstrates the configuration, verification, and analysis of the **Enhanced Interior Gateway Routing Protocol (EIGRP)** in a four-router Cisco network. The objective was to establish end-to-end connectivity, configure dynamic routing using **EIGRP Autonomous System (AS) 5205**, and examine how EIGRP selects routes based on its composite metric by modifying interface bandwidth and delay.
 
-Analyze EIGRP's path selection mechanism by manipulating the bandwidth and delay metrics on serial links.
+## Objectives
 
-Network Topology:
-1. Initial Setup and Connectivity
-1.1 IP Addressing and Interface Configuration
-All interfaces were configured according to the IP Addressing Requirements, using a placeholder Student Number (<SN>). Clock rates were set on the DCE (Data Communications Equipment) ends of the serial links to match the specified link speeds (Link 1: 1 Mbps, Link 2: 2 Mbps).
+- Configure IP addressing on four Cisco routers and two end hosts.
+- Verify Layer 3 connectivity between all directly connected devices.
+- Configure EIGRP AS 5205 across the network.
+- Advertise connected networks using EIGRP.
+- Configure passive interfaces to suppress unnecessary routing updates.
+- Disable automatic route summarization.
+- Analyze EIGRP path selection by modifying bandwidth and delay metrics.
+- Verify routing behavior using Cisco IOS verification commands.
 
-Key Commands (Example on R1):
+---
 
-R1> enable
-R1# configure terminal
-R1(config)# hostname R1-<Initials>
-R1(config)# interface Fa0/0
-R1(config-if)# ip address 44.44.<SN>.1 255.255.255.0
-R1(config-if)# no shutdown
-R1(config-if)# exit
+# Network Topology
 
-R1(config)# interface Fa0/1
-R1(config-if)# ip address 66.66.5.1 255.255.255.252
-R1(config-if)# no shutdown
-R1(config-if)# exit
+> *Insert network topology diagram here.*
 
-R1(config)# interface S0/2/0
-R1(config-if)# ip address 200.0.0.6 255.255.255.252
-R1(config-if)# clock rate 1000000  <-- DCE side for Link 1 (1 Mbps)
-R1(config-if)# no shutdown
-R1(config-if)# exit
+---
 
-1.2 Verification
-After configuring all devices (including default gateways on Host 1 and Host 2):
+# Initial Configuration
 
-show ip int brief was used on all routers to verify correct IP addresses and UP/UP status.
+## IP Addressing
 
-Successful Pings were achieved between each host and its default gateway, and between all 1-hop neighbor routers (R1 ↔ R2, R1 ↔ R4, R4 ↔ R3, R2 ↔ R3).
+Each router interface was configured according to the provided addressing scheme.
 
-show ip route confirmed all directly connected subnets were in the routing tables.
+Configuration included:
 
-2. EIGRP Configuration (AS 5205)
-2.1 EIGRP Activation and Network Statements
-EIGRP was initiated on all four routers using Autonomous System 5205. network statements were used to activate the protocol on all connected interfaces, including the Loopback0 interface on R2.
+- Hostnames
+- IPv4 addressing
+- Interface activation (`no shutdown`)
+- Clock rates on DCE serial interfaces
 
-Key Commands (Example on R1):
+### Example Configuration (R1)
 
-R1(config)# router eigrp 5205
-R1(config-router)# network 44.44.<SN>.0 0.0.0.255  <-- Subnet A
-R1(config-router)# network 66.66.5.0 0.0.0.3      <-- Subnet E
-R1(config-router)# network 200.0.0.4 0.0.0.3      <-- Link 1
-R1(config-router)# no auto-summary
+```cisco
+enable
+configure terminal
 
-2.2 Passive Interfaces
-To prevent unnecessary EIGRP neighbor formation and updates on LAN segments, specific interfaces were configured as passive.
+hostname R1
 
-Passive Interface Configuration:
+interface Fa0/0
+ ip address 44.44.X.1 255.255.255.0
+ no shutdown
 
-Router
-Interface
-Purpose
-R1
-Fa0/0
-Subnet A (Host 1)
-R2
-Loopback0
-Subnet B
-R3
-Fa0/0
-Subnet D (Host 2)
+interface Fa0/1
+ ip address 66.66.5.1 255.255.255.252
+ no shutdown
 
-Key Command (Example on R1):
-R1(config-router)# passive-interface Fa0/0
+interface S0/2/0
+ ip address 200.0.0.6 255.255.255.252
+ clock rate 1000000
+ no shutdown
+```
 
-2.3 Verification of EIGRP Adjacency (Part 1.1 Initial State)
-show ip protocol confirmed EIGRP AS 5205 was running and auto-summary was disabled.
+---
 
-show ip eigrp neighbor confirmed the two required EIGRP neighbor adjacencies on each router were established (e.g., R1 showed R2 and R4 as neighbors).
-Before metric manipulation, show ip route showed the shortest paths were chosen based on default EIGRP metrics (bandwidth and delay). Typically, the path with the higher serial link bandwidth (Link 2: 2 Mbps) would be preferred if all other metrics were equal.
+# Connectivity Verification
 
-3. EIGRP Metric Manipulation (Bandwidth and Delay)
-To force path selection over a specific route, the Bandwidth and Delay values—the primary components of the EIGRP metric—were manually adjusted.
+After configuring all routers and hosts, connectivity was validated using the following commands:
 
-3.1 Step 4: Setting Bandwidth
-The bandwidth command was used on all four serial interfaces to match the diagram's link speeds in Kbps.
+```cisco
+show ip interface brief
+show ip route
+ping
+```
 
-Router
-Interface
-Link
-Command (bandwidth in Kbps)
-R1/R2
-S0/2/0
-Link 1 (1 Mbps)
+## Verification Results
+
+- All interfaces reached **UP/UP** status.
+- Successful ping tests between:
+  - Hosts and their default gateways
+  - All directly connected routers
+- Routing tables contained all directly connected networks.
+
+---
+
+# EIGRP Configuration
+
+## Autonomous System
+
+```
+AS Number: 5205
+```
+
+EIGRP was enabled on every router using the appropriate network statements.
+
+### Example (R1)
+
+```cisco
+router eigrp 5205
+
+network 44.44.X.0 0.0.0.255
+network 66.66.5.0 0.0.0.3
+network 200.0.0.4 0.0.0.3
+
+no auto-summary
+```
+
+---
+
+# Passive Interfaces
+
+Passive interfaces were configured on LAN-facing interfaces to prevent unnecessary EIGRP hello packets while still advertising those connected networks.
+
+| Router | Passive Interface | Purpose |
+|---------|-------------------|----------|
+| R1 | Fa0/0 | Host 1 LAN |
+| R2 | Loopback0 | Loopback Network |
+| R3 | Fa0/0 | Host 2 LAN |
+
+Example:
+
+```cisco
+router eigrp 5205
+ passive-interface Fa0/0
+```
+
+---
+
+# EIGRP Verification
+
+The following commands were used to verify the EIGRP configuration:
+
+```cisco
+show ip protocols
+show ip eigrp neighbors
+show ip route
+```
+
+## Results
+
+- EIGRP AS 5205 was running successfully.
+- Auto-summary was disabled.
+- Every router established two EIGRP neighbor adjacencies.
+- Routes were dynamically exchanged across the network.
+- EIGRP initially selected the path with the lowest default metric.
+
+---
+
+# EIGRP Metric Analysis
+
+One of the primary objectives of this lab was to demonstrate how EIGRP selects routes using its composite metric.
+
+The default EIGRP metric is primarily calculated using:
+
+- Bandwidth
+- Delay
+
+---
+
+## Step 1 — Configure Bandwidth
+
+The serial interfaces were configured to match the link speeds shown in the topology.
+
+| Link | Bandwidth |
+|-------|-----------|
+| Link 1 | 1 Mbps |
+| Link 2 | 2 Mbps |
+
+Configuration:
+
+```cisco
 bandwidth 1000
-R3/R4
-S0/2/0
-Link 2 (2 Mbps)
+```
+
+or
+
+```cisco
 bandwidth 2000
+```
 
-3.2 Step 5: Setting Delay (Metric Control)
-The Delay metric was specifically raised on Link 1 to make the R1-R2 path appear less desirable than the longer R1-R4-R3-R2 path, which utilizes Link 2.
+depending on the interface.
 
-On R1, interface S0/2/0: delay 500 (5000 microseconds)
+---
 
-On R2, interface S0/2/0: delay 500 (5000 microseconds)
+## Step 2 — Modify Delay
 
-The path R1 → R4 → R3 → R2 maintained the default low delay, effectively reducing its overall EIGRP metric relative to the now-penalized R1 → R2 path.
+To influence route selection, the delay on the direct R1–R2 link was increased.
 
-3.3 Path Verification (Part 1.2 Final State)
-After applying the metric adjustments:
+### R1
 
-show interface S0/2/0 on R1 confirmed the new BW (1000 Kbit) and DLY (5000 usec) values.
+```cisco
+interface S0/2/0
+ delay 500
+```
 
-The R1 Routing Table (show ip route) was updated, showing that the route to Subnet B (172.11.5.0/28) was now learned via R4/Fa0/1 instead of R2/S0/2/0.
+### R2
 
-tracert 172.11.5.1 from Host 1 confirmed the path shifted: the traffic now flowed through the longer route (R1 → R4 → R3 → R2).
+```cisco
+interface S0/2/0
+ delay 500
+```
 
-Conclusion: By manually configuring a higher Delay on the direct Link 1, the EIGRP metric calculation was altered, causing the routers to prefer the longer path (R1-R4-R3-R2) which had 
-a lower overall calculated metric (Feasible Distance) to reach the destination Subnet B. This demonstrates how EIGRP uses composite metrics to make forwarding decision.
+Increasing delay raised the EIGRP metric for the direct path, making the alternate route more attractive.
+
+---
+
+# Route Verification
+
+The updated routing behavior was verified using:
+
+```cisco
+show interface S0/2/0
+show ip route
+tracert 172.11.5.1
+```
+
+## Results
+
+The routing table changed after the metric adjustment.
+
+### Initial Preferred Path
+
+```
+R1 → R2
+```
+
+### New Preferred Path
+
+```
+R1 → R4 → R3 → R2
+```
+
+The traceroute from Host 1 confirmed that traffic followed the longer physical path because it had the lower EIGRP composite metric.
+
+---
+
+# Key Cisco IOS Commands
+
+## Configuration
+
+```cisco
+router eigrp 5205
+network
+passive-interface
+no auto-summary
+bandwidth
+delay
+```
+
+## Verification
+
+```cisco
+show ip protocols
+show ip eigrp neighbors
+show ip route
+show interface
+show ip interface brief
+ping
+tracert
+```
+
+---
+
+# Key Concepts Demonstrated
+
+- EIGRP Neighbor Formation
+- Dynamic Route Advertisement
+- Passive Interfaces
+- Disabling Auto-Summarization
+- Composite Metric Calculation
+- Bandwidth Metric
+- Delay Metric
+- Feasible Distance
+- Successor Route Selection
+- Dynamic Path Optimization
+
+---
+
+# Conclusion
+
+This lab demonstrated the complete deployment of EIGRP in a multi-router Cisco network. After establishing dynamic routing and verifying neighbor relationships, interface bandwidth and delay metrics were intentionally modified to influence EIGRP's route selection process. Increasing the delay on the direct R1–R2 link caused EIGRP to calculate a higher composite metric for that path, resulting in traffic being redirected through the alternate R1 → R4 → R3 → R2 route. This exercise illustrates how EIGRP uses bandwidth and delay—not simply hop count—to determine the most efficient forwarding path.
