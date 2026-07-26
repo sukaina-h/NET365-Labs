@@ -23,11 +23,6 @@ The lab concludes by verifying how OSPF recalculates shortest paths after interf
 
 ---
 
-# Network Topology
-
-
----
-
 # Network Design
 
 ## Area Assignment
@@ -262,4 +257,5 @@ NET365-OSPF-MultiArea-Lab/
 ---
 
 # Conclusion
-
+This project demonstrates the deployment of a scalable multi-area OSPF network using Cisco routers. The network was configured with multiple OSPF areas, passive interfaces, router IDs, and route summarization. Interface costs were modified to influence shortest-path calculations, illustrating how OSPF dynamically recalculates routes using the SPF algorithm. The lab reinforces core enterprise networking concepts commonly used in production environments
+and provides practical experience with Cisco IOS configuration and verification.
